@@ -12,9 +12,8 @@ int defaultCarWheelSpeed = 30;
 int preGrayScaleSensorValue;
 
 int stableForwardCount = 0; // 用來確定前進是否穩定
-
-int rotationSide = 1; //1=順, -1=逆
-int rotateCountLimit = 10; // 旋轉次數上限, 須根據場地與設備調整
+// int currentForwardSteps = 0; // 用來計算本次旋轉前進的次數
+int rotationSide = 1; // 1:順, -1:逆
 int rotateCount = 0; //當前的旋轉次數
 void setup() {
   // put your setup code here, to run once:
@@ -30,24 +29,18 @@ void loop() {
   bool to_isBlack = isScaleBlack(grayScaleSensorValue);
   float ratio = 1;
   if ((from_isBlack && !to_isBlack) || (!from_isBlack && !to_isBlack)){
-    // 黑->白: 先往後再旋轉: RGB=RED
+    // Any->白: 先往後再旋轉: RGB=RED
+    if (rotateCount % 2 == 0){
+      rotationSide = 1;
+    } else {
+      rotationSide = -1;
+    }
     delay(200);
-    Serial.println("B->W");    
+    Serial.println("Any->W");    
     Mini.RGB1.setRGB(255, 0, 0);
-    if (rotateCount % rotateCountLimit == 0 && rotateCount != 0)
-    {
-     // too much rotation, change side
-      rotationSide *= (-1);
-      setSpeed(-1, -1, 2 * defalutDelayTime);
-      setSpeed(rotationSide, -1 * rotationSide, defaultRotationDelayTime * rotateCount);
-      rotateCount = 0;
-    }
-    else {
-      // keep same side rotation
-      setSpeed(-1, -1, 10 * defalutDelayTime);
-      setSpeed(rotationSide, -1 * rotationSide, defaultRotationDelayTime);
-      rotateCount += 1;
-    }
+    setSpeed(-1, -1, defalutDelayTime);
+    setSpeed(1 * rotationSide, -1 * rotationSide, defaultRotationDelayTime * (rotateCount + 1));
+    rotateCount++;
     stableForwardCount = 0;
   } else {
     // 黑->黑：前進: RGB=WHITE
@@ -55,8 +48,8 @@ void loop() {
     Mini.RGB1.setRGB(255, 255, 255);
     setSpeed(1, 1, defalutDelayTime);
     stableForwardCount += 1;
-    if (stableForwardCount > 20){
-      // 穩定前進後, 歸零旋轉計數
+    if (stableForwardCount > 10){
+      // TODO: 強化穩定前進的判斷
       rotateCount = 0;
     }
   }
