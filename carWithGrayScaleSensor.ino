@@ -22,9 +22,9 @@ void setup() {
 
 void loop() {
   // front ultrasonic sensor
-  int distanceInCM = Mini.D1.US.get();
-  Serial.print("Distance in cm:");
-  Serial.println(distanceInCM);
+  // int distanceInCM = Mini.D1.US.get();
+  // Serial.print("Distance in cm:");
+  // Serial.println(distanceInCM);
   // grayScaleSensor
   int grayScaleSensorValue = Mini.A3.getANG();
   bool from_isBlack = isScaleBlack(preGrayScaleSensorValue);
@@ -32,8 +32,6 @@ void loop() {
   float ratio = 1;
   if (!to_isBlack) {
     RoadMiss();
-  } else if (distanceInCM < 5){
-    MeetWall();
   } else {
     Foward();
   }
@@ -66,7 +64,7 @@ void RoadMiss(){
 }
 
 void BackAndFind(){
-  delay(100);
+  // delay(100);
   if (rotateCount % 2 == 0){
     rotationSide = 1;
   } else {
